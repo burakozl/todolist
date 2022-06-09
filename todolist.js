@@ -3,50 +3,63 @@ const errorToast = document.querySelectorAll("#liveToast");
 const textDom = document.getElementById("task");
 const listDom = document.getElementById("list");
 
-btnEkle.addEventListener('submit',newElement);
+btnEkle.addEventListener('submit',newElement);//ekle butonuna basıldığında newElement fonksiyonunu çağır
 
-function newElement() {
-    let newItem = textDom.value.trim();
-    if(newItem == ""){
+window.onload = function(){ // ilk açılışta localstorageden verileri getir
+    let listWork = getItemFromStorage(); //local strageden veriler listwork adlı değişkene atıldı
+    
+    if(localStorage.getItem("ListWork") != null){//localstorage dolu olduğu sürece çalış
+        listWork.forEach(function(item){
+            createNewElement(item);//localstoragede bulunan elemanlar ul içersine eklenerek ekrana yüklenir
+        }
+        )
+    }
+}
+
+function newElement() {// yeni eleman ekleme fonksiyonu
+    let newItem = textDom.value.trim();//boşluklardan kurtuluyoruz.
+    if(newItem == ""){ //ilk girilen değer boş ise hata mesajı göster
         $(errorToast[1]).toast('show');
-    }else{
+    }else{ //değilse fonsksiyonları çağır ve başarılı mesajını göster
         createNewElement(newItem)
         setItemwithLocalStorage(newItem);
         $(errorToast[0]).toast('show');
+
     } 
 }
-function createNewElement(newItem){
+function createNewElement(newItem){//input olarak girilen veri parametre olarak gelir
         const div = document.createElement("div");
         const li = document.createElement("li");
-        const button = document.createElement("button");
+        const button = document.createElement("button");//div li ve button oluşturuldu
         div.className = "list-item";
-        button.type = "button",button.innerHTML="X";
-        li.appendChild(document.createTextNode(newItem));
+        button.type = "button";
+        button.innerHTML="X";
+        button.style.cssText = "float:right; width:100px;"//X butonu sağa yasla
+        li.appendChild(document.createTextNode(newItem));//girilen veriyi listeye ekler
         listDom.appendChild(div);
         div.appendChild(li);
-        div.appendChild(button);
-        textDom.value = "";
-        li.addEventListener('click',workDone)
+        li.appendChild(button);
+        textDom.value = "";//input değeri girildikten sonra temizlemek için
+        li.addEventListener('click',function(e){
+                e.target.className="checked";
+        });//tıklanılan liste elemanının üzerini çizer
         button.addEventListener('click',function(){
-            button.parentElement.remove();
+            button.parentElement.remove();//x butonuna basılan liste elemanını siler
         });
 }
-function workDone() {
-    listDom.childNodes[1].firstChild.className="checked";   
-}
-function getItemFromStorage(){
+function getItemFromStorage(){//local storagedeki elemanları çağır
     let listWork;
-    if (localStorage.getItem("listWork") === null) {
+    if (localStorage.getItem("ListWork") === null) {
         listWork = [];
     }
     else {
-        listWork = JSON.parse(localStorage.getItem("listWork"));
+        listWork = JSON.parse(localStorage.getItem("ListWork"));//elemanları alırken json veriyi parse etmeliyiz.
     }
     return listWork;
 }
-function setItemwithLocalStorage(newItem) {
+function setItemwithLocalStorage(newItem) {//girilen değeri localstorage ye alıyoruz
     
-    let listWork = getItemFromStorage();
-    listWork.push(newItem);
-    localStorage.setItem("ListWork", JSON.stringify(listWork));
+    let listWork = getItemFromStorage();//localstoragedeki verileri alıp listwork adlı değişkene atıyoruz
+    listWork.push(newItem);//listwork  içersine ekle
+    localStorage.setItem("ListWork", JSON.stringify(listWork));//key: listWork , value : girilen input değeri
 }
